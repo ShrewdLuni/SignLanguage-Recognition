@@ -1,54 +1,63 @@
-import math
 import pickle
-import time
 
 import cv2
-import numpy
 import mediapipe as mp
-
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
-
-mp_drawing = mp.solutions.drawing_utils
-
-cap = cv2.VideoCapture(0)
-end = 0
+import numpy as np
 
 model_dict = pickle.load(open('./model.p', 'rb'))
 model = model_dict['model']
 
-labels_dict = {0: 'A', 1: 'B', 2: 'C'}
+cap = cv2.VideoCapture(0)
 
-while cap.isOpened():
-    start = time.time()
-    ret, frame = cap.read()
-    fps = math.ceil(1 / (time.time()-end))
-    end = start
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+
+while True:
     data = []
+    x_ = []
+    y_ = []
+
+    ret, frame = cap.read()
+
+    h, w, _ = frame.shape
 
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    image_height, image_width, _ = frame_rgb.shape
 
     results = hands.process(frame_rgb)
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS,landmark_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 0),thickness=4,circle_radius=2),connection_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(0, 0, 0),thickness=2,circle_radius=2))
+
+        for hand_landmarks in results.multi_hand_landmarks:
             for i in range(len(hand_landmarks.landmark)):
-                data.append(hand_landmarks.landmark[i].x)
-                data.append(hand_landmarks.landmark[i].y)
-            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS,landmark_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 0), thickness=4, circle_radius=2),connection_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(0, 0, 0), thickness=2, circle_radius=2))
+                x = hand_landmarks.landmark[i].x
+                y = hand_landmarks.landmark[i].y
 
-        prediction = labels_dict[int(model.predict([numpy.asarray(data)])[0])]
+                x_.append(x)
+                y_.append(y)
 
-        print(prediction)
+            for i in range(len(hand_landmarks.landmark)):
+                x = hand_landmarks.landmark[i].x
+                y = hand_landmarks.landmark[i].y
+                data.append(x - min(x_))
+                data.append(y - min(y_))
 
+        x1 = int(min(x_) * w) - 10
+        y1 = int(min(y_) * h) - 10
 
-    cv2.putText(frame,str(fps),(10,30),cv2.FONT_HERSHEY_SIMPLEX ,1,(0,0,255),2 )
+        x2 = int(max(x_) * w) - 10
+        y2 = int(max(y_) * h) - 10
+
+        prediction = model.predict([np.asarray(data)])[0]
+
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
+        cv2.putText(frame, prediction, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3,cv2.LINE_AA)
 
     cv2.imshow('Hand Recognition', frame)
     cv2.waitKey(1)
 
-# Release the video capture object and close the OpenCV windows
 cap.release()
 cv2.destroyAllWindows()
