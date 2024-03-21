@@ -53,8 +53,8 @@ while True:
 
         prediction = model.predict([np.asarray(data)])[0]
 
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
-        cv2.putText(frame, prediction, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3,cv2.LINE_AA)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 4)
+        cv2.putText(frame, prediction, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3,cv2.LINE_AA)
 
     cv2.imshow('Hand Recognition', frame)
     cv2.waitKey(1)
