@@ -4,6 +4,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
+import time
+
 model_dict = pickle.load(open('./model.p', 'rb'))
 model = model_dict['model']
 
@@ -15,13 +17,18 @@ hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 
+start_time = time.time()
+
+answer = ""
+oldPrediction = ""
+test = True;
+
 while True:
     data = []
     x_ = []
     y_ = []
 
     ret, frame = cap.read()
-
     h, w, _ = frame.shape
 
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -52,9 +59,17 @@ while True:
         y2 = int(max(y_) * h) - 10
 
         prediction = model.predict([np.asarray(data)])[0]
+        if oldPrediction != prediction:
+            oldPrediction = prediction
+            start_time = time.time()
+        elif time.time() - start_time > 1 and oldPrediction == prediction:
+            answer = answer + prediction
+            start_time = time.time()
+
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 4)
         cv2.putText(frame, prediction, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3,cv2.LINE_AA)
+        cv2.putText(frame, answer, (40,40), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3,cv2.LINE_AA)
 
     cv2.imshow('Hand Recognition', frame)
     cv2.waitKey(1)
