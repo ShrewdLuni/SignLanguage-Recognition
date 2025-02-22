@@ -19,9 +19,8 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 start_time = time.time()
 
-answer = ""
-oldPrediction = ""
-test = True;
+user_input = ""
+old_prediction = ""
 
 while True:
     data = []
@@ -36,7 +35,7 @@ while True:
     results = hands.process(frame_rgb)
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
-            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS,landmark_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 0),thickness=4,circle_radius=2),connection_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(0, 0, 0),thickness=2,circle_radius=2))
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS, landmark_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 0), thickness=4, circle_radius=2), connection_drawing_spec=mp.solutions.drawing_utils.DrawingSpec(color=(0, 0, 0), thickness=2, circle_radius=2))
 
         for hand_landmarks in results.multi_hand_landmarks:
             for i in range(len(hand_landmarks.landmark)):
@@ -57,19 +56,18 @@ while True:
 
         x2 = int(max(x_) * w) - 10
         y2 = int(max(y_) * h) - 10
-
-        prediction = model.predict([np.asarray(data)])[0]
-        if oldPrediction != prediction:
-            oldPrediction = prediction
-            start_time = time.time()
-        elif time.time() - start_time > 1 and oldPrediction == prediction:
-            answer = answer + prediction
-            start_time = time.time()
-
+        if len(data) == 42:
+            prediction = model.predict([np.asarray(data)])[0]
+            if old_prediction != prediction:
+                old_prediction = prediction
+                start_time = time.time()
+            elif time.time() - start_time > 1 and old_prediction == prediction:
+                user_input = user_input + prediction
+                start_time = time.time()
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 4)
-        cv2.putText(frame, prediction, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3,cv2.LINE_AA)
-        cv2.putText(frame, answer, (40,40), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3,cv2.LINE_AA)
+        cv2.putText(frame, prediction, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(frame, user_input, (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3, cv2.LINE_AA)
 
     cv2.imshow('Hand Recognition', frame)
     cv2.waitKey(1)

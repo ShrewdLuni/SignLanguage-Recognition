@@ -14,8 +14,11 @@ DATA_DIR = './data'
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-options = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y"]
-dataSize = 100
+# Possible signs in order, currently english alphabet
+options = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"]
+
+# Amount of pictures aka example for each sign
+data_size = 100
 
 cap = cv2.VideoCapture(0)
 for option in range(len(options)):
@@ -27,13 +30,13 @@ for option in range(len(options)):
     done = False
     while True:
         ret, frame = cap.read()
-        cv2.putText(frame, 'q to collect data for:{}'.format(options[option]), (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 255, 0), 3,cv2.LINE_AA)
+        cv2.putText(frame, 'q to collect data for:{}'.format(options[option]), (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 255, 0), 3, cv2.LINE_AA)
         cv2.imshow('frame', frame)
         if cv2.waitKey(20) == ord('q'):
             break
 
     counter = 0
-    while counter < dataSize:
+    while counter < data_size:
         ret, frame = cap.read()
         cv2.imshow('frame', frame)
         cv2.waitKey(20)
@@ -44,7 +47,6 @@ for option in range(len(options)):
 cap.release()
 cv2.destroyAllWindows()
 
-#creating dataset
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
