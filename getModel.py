@@ -86,11 +86,11 @@ for dir_ in os.listdir(DATA_DIR):
             data.append(data_aux)
             labels.append(dir_)
 
-f = open('data.pickle', 'wb')
+f = open('assets/data.pickle', 'wb')
 pickle.dump({'data': data, 'labels': labels}, f)
 f.close()
 
-data_dict = pickle.load(open('./data.pickle', 'rb'))
+data_dict = pickle.load(open('assets/data.pickle', 'rb'))
 
 data = np.asarray(data_dict['data'])
 labels = np.asarray(data_dict['labels'])
@@ -106,6 +106,6 @@ score = accuracy_score(y_predict, y_test)
 
 print('{}%'.format(score * 100))
 
-f = open('model.p', 'wb')
+f = open('assets/model.p', 'wb')
 pickle.dump({'model': model}, f)
 f.close()

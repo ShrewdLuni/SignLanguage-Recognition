@@ -1,5 +1,5 @@
 .idea/vcs.xml
 .idea
-/idea/
+/.idea/
 /data/
-data.pickle
+assets/data.pickle
