@@ -1,6 +1,6 @@
 # American Sign Language Recognizer
 
-![Demo GIF](\assets\IMG_3358.gif)
+![Demo GIF](/assets/IMG_3358.gif)
 
 
 ## Overview
